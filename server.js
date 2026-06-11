@@ -7,6 +7,10 @@ import cityRoutes from "./routes/cityRoutes.js";
 import destinationRoutes from "./routes/destinationRoutes.js";
 import experienceRoutes from "./routes/experienceRoutes.js";
 import experienceImageRoutes from "./routes/experienceImageRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
+
+
+
 
 dotenv.config();
 
@@ -19,6 +23,7 @@ app.use("/api/cities", cityRoutes);
 app.use("/api/destinations", destinationRoutes);
 app.use("/api/experiences", experienceRoutes);
 app.use("/api/experience-images", experienceImageRoutes);
+app.use("/api/blogs", blogRoutes);
 
 
 
