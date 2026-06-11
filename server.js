@@ -6,6 +6,7 @@ import pool from "./db.js";
 import cityRoutes from "./routes/cityRoutes.js";
 import destinationRoutes from "./routes/destinationRoutes.js";
 import experienceRoutes from "./routes/experienceRoutes.js";
+import experienceImageRoutes from "./routes/experienceImageRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +18,9 @@ app.use(express.json());
 app.use("/api/cities", cityRoutes);
 app.use("/api/destinations", destinationRoutes);
 app.use("/api/experiences", experienceRoutes);
+app.use("/api/experience-images", experienceImageRoutes);
+
+
 
 app.get("/", async (req, res) => {
   try {
