@@ -15,6 +15,7 @@ import likeRoutes from "./routes/likeRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import { verifyToken } from "./middleware/authMiddleware.js";
+import { adminOnly } from "./middleware/roleMiddleware.js";
 
 dotenv.config();
 
@@ -33,7 +34,16 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/users", userRoutes);
-
+app.get(
+  "/api/admin-dashboard",
+  verifyToken,
+  adminOnly,
+  (req, res) => {
+    res.json({
+      message: "Welcome Admin",
+    });
+  }
+);
 
 
 
