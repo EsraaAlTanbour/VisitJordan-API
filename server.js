@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
 
 import pool from "./db.js";
 import cityRoutes from "./routes/cityRoutes.js";
@@ -11,14 +13,17 @@ import blogRoutes from "./routes/blogRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import likeRoutes from "./routes/likeRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-
+import authRoutes from "./routes/authRoutes.js";
+import { verifyToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 
 const app = express();
 
+
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/cities", cityRoutes);
 app.use("/api/destinations", destinationRoutes);
