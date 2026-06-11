@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import pool from "./db.js";
 import cityRoutes from "./routes/cityRoutes.js";
 import destinationRoutes from "./routes/destinationRoutes.js";
+import experienceRoutes from "./routes/experienceRoutes.js";
+
 dotenv.config();
 
 const app = express();
@@ -14,7 +16,7 @@ app.use(express.json());
 
 app.use("/api/cities", cityRoutes);
 app.use("/api/destinations", destinationRoutes);
-
+app.use("/api/experiences", experienceRoutes);
 
 app.get("/", async (req, res) => {
   try {
