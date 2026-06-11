@@ -10,6 +10,7 @@ import experienceImageRoutes from "./routes/experienceImageRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import likeRoutes from "./routes/likeRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use("/api/experience-images", experienceImageRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/likes", likeRoutes);
+app.use("/api/users", userRoutes);
 
 
 
