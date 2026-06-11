@@ -9,15 +9,18 @@ import {
   rejectExperience,
 } from "../controllers/experienceController.js";
 
+import { verifyToken } from "../middleware/authMiddleware.js";
+import { adminOnly, providerOnly } from "../middleware/roleMiddleware.js";
+
 const router = express.Router();
 
 router.get("/", getAllExperiences);
 router.get("/:id", getExperienceById);
-router.post("/", createExperience);
-router.put("/:id", updateExperience);
-router.delete("/:id", deleteExperience);
-router.put("/:id/approve", approveExperience);
-router.put("/:id/reject", rejectExperience);
+router.post("/", verifyToken, providerOnly, createExperience);
+router.put("/:id", verifyToken, providerOnly, updateExperience);
+router.delete("/:id", verifyToken, providerOnly, deleteExperience);
+router.put("/:id/approve", verifyToken, adminOnly, approveExperience);
+router.put("/:id/reject", verifyToken, adminOnly, rejectExperience);
 
 
 export default router;
