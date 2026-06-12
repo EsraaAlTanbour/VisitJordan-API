@@ -8,10 +8,17 @@ export const adminOnly = (req, res, next) => {
   next();
 };
 
+
 export const providerOnly = (req, res, next) => {
   if (req.user.role !== "Provider") {
     return res.status(403).json({
       message: "Provider access only",
+    });
+  }
+
+  if (!req.user.is_approved) {
+    return res.status(403).json({
+      message: "Provider account is awaiting admin approval",
     });
   }
 
