@@ -4,18 +4,40 @@ import pgclient from "../db.js";
 
 export const register = async (req, res) => {
   try {
-    const { first_name, last_name, email, password, role } = req.body;
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      role,
+      phone,
+      city,
+      business_name,
+    } = req.body;
+
+       if (role === "Provider" && !business_name) {
+      return res.status(400).json({ message: "Business name is required for providers" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const isApproved = role === "Provider" ? false : true;
 
     const result = await pgclient.query(
       `INSERT INTO users
-       (first_name, last_name, email, password_hash, role, is_approved)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, first_name, last_name, email, role, is_approved, created_at`,
-      [first_name, last_name, email, hashedPassword, role, isApproved]
+       (first_name, last_name, email, password_hash, role, is_approved, phone, city, business_name)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, first_name, last_name, email, role, is_approved, phone, city, business_name, created_at`,
+      [
+        first_name,
+        last_name,
+        email,
+        hashedPassword,
+        role,
+        isApproved,
+        phone,
+        city,
+        role === "Provider" ? business_name : null,
+      ]
     );
 
     res.status(201).json({
@@ -29,7 +51,6 @@ export const register = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;

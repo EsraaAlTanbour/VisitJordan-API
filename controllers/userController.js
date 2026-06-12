@@ -99,7 +99,17 @@ export const deleteUser = async (req, res) => {
 export const getPendingProviders = async (req, res) => {
   try {
     const result = await pgclient.query(
-      `SELECT id, first_name, last_name, email, role, is_approved, created_at
+      `SELECT 
+          id,
+          first_name,
+          last_name,
+          email,
+          business_name,
+          city,
+          phone,
+          role,
+          is_approved,
+          created_at
        FROM users
        WHERE role = 'Provider' AND is_approved = false
        ORDER BY id ASC`
@@ -110,7 +120,6 @@ export const getPendingProviders = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 export const approveProvider = async (req, res) => {
   try {
     const { id } = req.params;
