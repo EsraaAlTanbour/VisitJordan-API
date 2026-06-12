@@ -93,4 +93,69 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+  
+};
+
+export const getPendingProviders = async (req, res) => {
+  try {
+    const result = await pgclient.query(
+      `SELECT id, first_name, last_name, email, role, is_approved, created_at
+       FROM users
+       WHERE role = 'Provider' AND is_approved = false
+       ORDER BY id ASC`
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const approveProvider = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pgclient.query(
+      `UPDATE users
+       SET is_approved = true
+       WHERE id = $1 AND role = 'Provider'
+       RETURNING id, first_name, last_name, email, role, is_approved`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    res.json({
+      message: "Provider approved successfully",
+      provider: result.rows[0],
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const rejectProvider = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pgclient.query(
+      `DELETE FROM users
+       WHERE id = $1 AND role = 'Provider' AND is_approved = false
+       RETURNING id, first_name, last_name, email, role`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Pending provider not found" });
+    }
+
+    res.json({
+      message: "Provider rejected and removed successfully",
+      provider: result.rows[0],
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
