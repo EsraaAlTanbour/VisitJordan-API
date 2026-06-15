@@ -46,6 +46,32 @@ export const getExperienceById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+export const getProviderExperiences = async (req, res) => {
+  try {
+    const provider_id = req.user.id;
+
+    const result = await pgclient.query(
+      `
+      SELECT e.*,
+             c.name AS city_name,
+             COALESCE(SUM(b.people_count), 0) AS booked_count
+      FROM experiences e
+      LEFT JOIN cities c ON e.city_id = c.id
+      LEFT JOIN bookings b 
+        ON b.experience_id = e.id 
+        AND b.status != 'Cancelled'
+      WHERE e.provider_id = $1
+      GROUP BY e.id, c.name
+      ORDER BY e.id DESC
+      `,
+      [provider_id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const createExperience = async (req, res) => {
   try {
