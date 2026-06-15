@@ -19,6 +19,8 @@ router.get("/:id", getExperienceById);
 router.post("/", verifyToken, providerOnly, createExperience);
 router.put("/:id", verifyToken, providerOnly, updateExperience);
 router.delete("/:id", verifyToken, providerOnly, deleteExperience);
+router.put("/admin/:id", verifyToken, adminOnly, updateExperience);
+router.delete("/admin/:id", verifyToken, adminOnly, deleteExperience);
 router.put("/:id/approve", verifyToken, adminOnly, approveExperience);
 router.put("/:id/reject", verifyToken, adminOnly, rejectExperience);
 
