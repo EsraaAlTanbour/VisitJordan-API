@@ -47,17 +47,18 @@ export const getBookingById = async (req, res) => {
 
 export const getBookingsByUser = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const user_id = req.user.id;
 
     const result = await pgclient.query(
       `SELECT b.*,
               e.title AS experience_title,
               e.location,
-              e.price
+              e.price,
+              e.image_url
        FROM bookings b
        JOIN experiences e ON b.experience_id = e.id
        WHERE b.user_id = $1
-       ORDER BY b.id ASC`,
+       ORDER BY b.id DESC`,
       [user_id]
     );
 
@@ -69,7 +70,8 @@ export const getBookingsByUser = async (req, res) => {
 
 export const createBooking = async (req, res) => {
   try {
-    const { user_id, experience_id, booking_date, people_count, total_price } = req.body;
+    const user_id = req.user.id;
+    const { experience_id, booking_date, people_count, total_price } = req.body;
 
     const result = await pgclient.query(
       `INSERT INTO bookings

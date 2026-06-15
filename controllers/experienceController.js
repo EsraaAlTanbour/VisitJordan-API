@@ -49,23 +49,40 @@ export const getExperienceById = async (req, res) => {
 
 export const createExperience = async (req, res) => {
   try {
+    const provider_id = req.user.id;
+
     const {
-      provider_id,
       city_id,
       title,
       description,
       category,
       location,
       duration,
-      max_people,
+      capacity,
+      start_date,
+      end_date,
       price,
       image_url,
     } = req.body;
 
     const result = await pgclient.query(
       `INSERT INTO experiences
-      (provider_id, city_id, title, description, category, location, duration, max_people, price, image_url, status)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'Pending')
+      (
+        provider_id,
+        city_id,
+        title,
+        description,
+        category,
+        location,
+        duration,
+        capacity,
+        start_date,
+        end_date,
+        price,
+        image_url,
+        status
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'Pending')
       RETURNING *`,
       [
         provider_id,
@@ -75,7 +92,9 @@ export const createExperience = async (req, res) => {
         category,
         location,
         duration,
-        max_people,
+        capacity,
+        start_date,
+        end_date,
         price,
         image_url,
       ]
@@ -87,36 +106,70 @@ export const createExperience = async (req, res) => {
   }
 };
 
-
 export const updateExperience = async (req, res) => {
   try {
     const { id } = req.params;
+
+    const check = await pgclient.query(
+      "SELECT status FROM experiences WHERE id=$1",
+      [id]
+    );
+
+    if (check.rows.length === 0) {
+      return res.status(404).json({ message: "Experience not found" });
+    }
+
+    if (req.user.role === "Provider" && check.rows[0].status === "Approved") {
+      return res.status(403).json({
+        message: "Approved experiences cannot be edited",
+      });
+    }
+
     const {
-      provider_id,
       city_id,
       title,
       description,
       category,
       location,
       duration,
-      max_people,
+      capacity,
+      start_date,
+      end_date,
       price,
       image_url,
     } = req.body;
 
     const result = await pgclient.query(
       `UPDATE experiences
-       SET provider_id=$1, city_id=$2, title=$3, description=$4,
-           category=$5, location=$6, duration=$7, max_people=$8,
-           price=$9, image_url=$10, updated_at=CURRENT_TIMESTAMP
-       WHERE id=$11
+       SET city_id=$1,
+           title=$2,
+           description=$3,
+           category=$4,
+           location=$5,
+           duration=$6,
+           capacity=$7,
+           start_date=$8,
+           end_date=$9,
+           price=$10,
+           image_url=$11,
+           updated_at=CURRENT_TIMESTAMP
+       WHERE id=$12
        RETURNING *`,
-      [provider_id, city_id, title, description, category, location, duration, max_people, price, image_url, id]
+      [
+        city_id,
+        title,
+        description,
+        category,
+        location,
+        duration,
+        capacity,
+        start_date,
+        end_date,
+        price,
+        image_url,
+        id,
+      ]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Experience not found" });
-    }
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -128,14 +181,22 @@ export const deleteExperience = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await pgclient.query(
-      "DELETE FROM experiences WHERE id=$1 RETURNING *",
+    const check = await pgclient.query(
+      "SELECT status FROM experiences WHERE id=$1",
       [id]
     );
 
-    if (result.rows.length === 0) {
+    if (check.rows.length === 0) {
       return res.status(404).json({ message: "Experience not found" });
     }
+
+    if (req.user.role === "Provider" && check.rows[0].status === "Approved") {
+      return res.status(403).json({
+        message: "Approved experiences cannot be deleted",
+      });
+    }
+
+    await pgclient.query("DELETE FROM experiences WHERE id=$1", [id]);
 
     res.json({ message: "Experience deleted successfully" });
   } catch (error) {
