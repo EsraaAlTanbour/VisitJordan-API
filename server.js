@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-
 import pool from "./db.js";
 import cityRoutes from "./routes/cityRoutes.js";
 import destinationRoutes from "./routes/destinationRoutes.js";
@@ -21,26 +20,21 @@ dotenv.config();
 
 const app = express();
 
+// CORS Configuration
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://visitjordan-client-production.up.railway.app",
+    ],
+    credentials: true,
+  })
+);
 
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://visitjordan-client-production.up.railway.app"
-  ],
-  credentials: true,
-}));
-
-app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://visitjordan-client-production.up.railway.app"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes
 app.use("/api/cities", cityRoutes);
 app.use("/api/destinations", destinationRoutes);
 app.use("/api/experiences", experienceRoutes);
@@ -50,6 +44,8 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+
+// Protected Admin Route
 app.get(
   "/api/admin-dashboard",
   verifyToken,
@@ -61,8 +57,7 @@ app.get(
   }
 );
 
-
-
+// Root Route
 app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
